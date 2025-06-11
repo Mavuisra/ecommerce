@@ -1,0 +1,82 @@
+RewriteEngine On
+
+# Redirection HTTPS (à décommenter en production)
+# RewriteCond %{HTTPS} off
+# RewriteRule ^(.*)$ https://%{HTTP_HOST}%{REQUEST_URI} [L,R=301]
+
+# Cacher les fichiers sensibles
+<Files ~ "^\.">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ~ "\.sql$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+<Files ~ "\.log$">
+    Order allow,deny
+    Deny from all
+</Files>
+
+# Bloquer l'accès aux dossiers d'administration sans authentification
+# <Directory "admin">
+#     AuthType Basic
+#     AuthName "Administration"
+#     AuthUserFile /path/to/.htpasswd
+#     Require valid-user
+# </Directory>
+
+# Headers de sécurité
+<IfModule mod_headers.c>
+    Header always set X-Content-Type-Options nosniff
+    Header always set X-Frame-Options DENY
+    Header always set X-XSS-Protection "1; mode=block"
+    Header always set Referrer-Policy "strict-origin-when-cross-origin"
+    Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:;"
+</IfModule>
+
+# Compression
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/plain
+    AddOutputFilterByType DEFLATE text/html
+    AddOutputFilterByType DEFLATE text/xml
+    AddOutputFilterByType DEFLATE text/css
+    AddOutputFilterByType DEFLATE application/xml
+    AddOutputFilterByType DEFLATE application/xhtml+xml
+    AddOutputFilterByType DEFLATE application/rss+xml
+    AddOutputFilterByType DEFLATE application/javascript
+    AddOutputFilterByType DEFLATE application/x-javascript
+</IfModule>
+
+# Cache
+<IfModule mod_expires.c>
+    ExpiresActive On
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType image/png "access plus 1 month"
+    ExpiresByType image/jpg "access plus 1 month"
+    ExpiresByType image/jpeg "access plus 1 month"
+    ExpiresByType image/gif "access plus 1 month"
+    ExpiresByType image/webp "access plus 1 month"
+</IfModule>
+
+# URL Rewriting désactivé pour éviter les boucles infinies
+# RewriteRule ^products/?$ products/index.php [L]
+# RewriteRule ^product/([0-9]+)/?$ products/details.php?id=$1 [L]
+# RewriteRule ^category/([0-9]+)/?$ products/index.php?category=$1 [L]
+# RewriteRule ^search/(.+)/?$ products/index.php?search=$1 [L]
+
+# Page d'erreur personnalisée
+ErrorDocument 404 /ecommerce/error/404.php
+ErrorDocument 500 /ecommerce/error/500.php
+
+# Limiter la taille des uploads
+php_value upload_max_filesize 10M
+php_value post_max_size 10M
+
+# Désactiver l'affichage des erreurs en production
+# php_flag display_errors Off
+# php_flag log_errors On
+# php_value error_log /path/to/error.log 
