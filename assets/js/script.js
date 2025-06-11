@@ -720,82 +720,108 @@ function initializeLazyLoading() {
     images.forEach(img => imageObserver.observe(img));
 }
 
-// Popup orange pour l'ajout au panier
+// Popup redesigné pour l'ajout au panier
 function showCartAddedPopup(product) {
-    // Créer le popup
+    // Créer le popup principal
     const popup = document.createElement('div');
     popup.className = 'cart-added-popup';
     popup.style.cssText = `
         position: fixed;
         top: 50%;
         left: 50%;
-        transform: translate(-50%, -50%) scale(0.7);
-        background: linear-gradient(135deg, #ff8c00, #ff7700);
-        color: white;
-        padding: 2rem;
-        border-radius: 15px;
-        box-shadow: 0 20px 60px rgba(255, 140, 0, 0.3);
+        transform: translate(-50%, -50%) scale(0.8);
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        color: #333;
+        padding: 0;
+        border-radius: 20px;
+        box-shadow: 0 25px 80px rgba(0, 0, 0, 0.15), 0 0 0 1px rgba(255, 255, 255, 0.05);
         z-index: 10001;
-        max-width: 400px;
-        width: 90%;
-        text-align: center;
+        max-width: 450px;
+        width: 95%;
         opacity: 0;
-        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-        backdrop-filter: blur(10px);
-        border: 2px solid rgba(255, 255, 255, 0.2);
+        transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+        overflow: hidden;
     `;
     
-    // Créer l'overlay
+    // Créer l'overlay avec effet flou
     const overlay = document.createElement('div');
+    overlay.className = 'cart-popup-overlay';
     overlay.style.cssText = `
         position: fixed;
         top: 0;
         left: 0;
         width: 100%;
         height: 100%;
-        background: rgba(0, 0, 0, 0.5);
+        background: rgba(0, 0, 0, 0.6);
+        backdrop-filter: blur(8px);
         z-index: 10000;
         opacity: 0;
-        transition: opacity 0.3s ease;
+        transition: all 0.3s ease;
     `;
     
     // Contenu du popup
     popup.innerHTML = `
-        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
-            <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 1rem;">
-                🛒
-            </div>
-            <div style="text-align: left;">
-                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Ajouté au panier !</h3>
-                <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Article ajouté avec succès</p>
+        <!-- Header avec animation -->
+        <div style="background: linear-gradient(135deg, #28a745, #20c997); padding: 2rem; text-align: center; position: relative; overflow: hidden;">
+            <div style="position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: radial-gradient(circle, rgba(255,255,255,0.1) 0%, transparent 70%); animation: ripple 2s infinite;"></div>
+            <div style="position: relative; z-index: 2;">
+                <div style="width: 80px; height: 80px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 36px; margin: 0 auto 1rem; animation: bounce 0.6s ease-out;">
+                    ✅
+                </div>
+                <h2 style="margin: 0; font-size: 1.5rem; font-weight: 800; color: white; text-shadow: 0 2px 4px rgba(0,0,0,0.2);">
+                    Ajouté avec succès !
+                </h2>
+                <p style="margin: 0.5rem 0 0 0; opacity: 0.9; font-size: 1rem; color: white;">
+                    Votre article a été ajouté au panier
+                </p>
             </div>
         </div>
         
-        <div style="background: rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
-            <div style="display: flex; align-items: center; gap: 1rem;">
-                <img src="/ecommerce/assets/images/${product.image || 'default-product.jpg'}" 
-                     alt="${product.name}"
-                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.3);"
-                     onerror="this.src='/ecommerce/assets/images/default-product.jpg'">
+        <!-- Détails du produit -->
+        <div style="padding: 1.5rem;">
+            <div style="display: flex; align-items: center; gap: 1rem; background: #f8f9fa; border-radius: 15px; padding: 1rem; margin-bottom: 1.5rem; border: 1px solid #e9ecef;">
+                <div style="position: relative;">
+                    <img src="/ecommerce/assets/images/${product.image || 'default-product.jpg'}" 
+                         alt="${product.name}"
+                         style="width: 70px; height: 70px; object-fit: cover; border-radius: 12px; box-shadow: 0 4px 12px rgba(0,0,0,0.1);"
+                         onerror="this.src='/ecommerce/assets/images/default-product.jpg'">
+                    <div style="position: absolute; top: -8px; right: -8px; background: #28a745; color: white; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: bold; box-shadow: 0 2px 6px rgba(40, 167, 69, 0.3);">
+                        ${product.quantity}
+                    </div>
+                </div>
                 <div style="flex: 1;">
-                    <h4 style="margin: 0; font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">${product.name}</h4>
+                    <h4 style="margin: 0 0 0.5rem 0; font-size: 1.1rem; font-weight: 700; color: #333; line-height: 1.3;">
+                        ${product.name}
+                    </h4>
                     <div style="display: flex; justify-content: space-between; align-items: center;">
-                        <span style="font-size: 0.9rem; opacity: 0.9;">Quantité: ${product.quantity}</span>
-                        <span style="font-weight: 700; font-size: 1rem;">${formatPriceFC(product.price)}</span>
+                        <span style="font-size: 0.9rem; color: #666; font-weight: 500;">
+                            ${product.quantity} × ${formatPriceFC(product.price)}
+                        </span>
+                        <span style="font-weight: 800; font-size: 1.2rem; color: #28a745;">
+                            ${formatPriceFC(product.price * product.quantity)}
+                        </span>
                     </div>
                 </div>
             </div>
+            
+            <!-- Boutons d'action -->
+            <div style="display: flex; gap: 0.75rem;">
+                <button onclick="closeCartPopup()" 
+                        class="popup-btn-secondary"
+                        style="flex: 1; background: #f8f9fa; color: #666; border: 2px solid #e9ecef; padding: 0.875rem 1rem; border-radius: 12px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem;">
+                    Continuer les achats
+                </button>
+                <button onclick="goToCart()" 
+                        class="popup-btn-primary"
+                        style="flex: 1; background: linear-gradient(135deg, #007bff, #0056b3); color: white; border: none; padding: 0.875rem 1rem; border-radius: 12px; font-weight: 700; cursor: pointer; transition: all 0.3s ease; font-size: 0.95rem; box-shadow: 0 4px 15px rgba(0, 123, 255, 0.3);">
+                    🛒 Voir le panier
+                </button>
+            </div>
         </div>
         
-        <div style="display: flex; gap: 1rem;">
-            <button onclick="closeCartPopup()" 
-                    style="flex: 1; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
-                Continuer
-            </button>
-            <button onclick="goToCart()" 
-                    style="flex: 1; background: white; color: #ff8c00; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
-                Voir le panier
-            </button>
+        <!-- Barre de progression pour la fermeture automatique -->
+        <div style="height: 4px; background: #e9ecef; position: relative; overflow: hidden;">
+            <div class="auto-close-bar" style="height: 100%; background: linear-gradient(90deg, #28a745, #20c997); width: 100%; transform: translateX(-100%); animation: progressBar 5s linear forwards;"></div>
         </div>
     `;
     
@@ -803,11 +829,13 @@ function showCartAddedPopup(product) {
     document.body.appendChild(overlay);
     document.body.appendChild(popup);
     
-    // Animation d'ouverture
+    // Animation d'ouverture avec délai pour un effet plus fluide
     requestAnimationFrame(() => {
         overlay.style.opacity = '1';
-        popup.style.opacity = '1';
-        popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        setTimeout(() => {
+            popup.style.opacity = '1';
+            popup.style.transform = 'translate(-50%, -50%) scale(1)';
+        }, 100);
     });
     
     // Fermer automatiquement après 5 secondes
@@ -820,23 +848,32 @@ function showCartAddedPopup(product) {
     
     // Empêcher le scroll du body
     document.body.style.overflow = 'hidden';
+    
+    // Ajouter les animations CSS
+    addPopupAnimations();
 }
 
-// Fermer le popup du panier
+// Fermer le popup du panier avec animation améliorée
 function closeCartPopup() {
     const popup = document.querySelector('.cart-added-popup');
-    const overlay = document.querySelector('div[style*="background: rgba(0, 0, 0, 0.5)"]');
+    const overlay = document.querySelector('.cart-popup-overlay');
     
     if (popup && overlay) {
+        // Animation de fermeture
         popup.style.opacity = '0';
-        popup.style.transform = 'translate(-50%, -50%) scale(0.7)';
+        popup.style.transform = 'translate(-50%, -50%) scale(0.8)';
         overlay.style.opacity = '0';
         
+        // Nettoyage après animation
         setTimeout(() => {
-            document.body.removeChild(popup);
-            document.body.removeChild(overlay);
+            if (document.body.contains(popup)) {
+                document.body.removeChild(popup);
+            }
+            if (document.body.contains(overlay)) {
+                document.body.removeChild(overlay);
+            }
             document.body.style.overflow = '';
-        }, 300);
+        }, 400);
     }
 }
 
@@ -854,24 +891,103 @@ function formatPriceFC(price) {
     }).format(price) + ' FC';
 }
 
-// Style hover pour les boutons du popup
-document.addEventListener('mouseover', function(e) {
-    if (e.target.onclick && e.target.onclick.toString().includes('closeCartPopup')) {
-        e.target.style.background = 'rgba(255, 255, 255, 0.3)';
-    }
-    if (e.target.onclick && e.target.onclick.toString().includes('goToCart')) {
-        e.target.style.background = '#f0f0f0';
-        e.target.style.transform = 'translateY(-1px)';
-    }
-});
+// Ajouter les animations CSS pour le popup
+function addPopupAnimations() {
+    // Vérifier si les styles existent déjà
+    if (document.getElementById('popup-animations')) return;
+    
+    const style = document.createElement('style');
+    style.id = 'popup-animations';
+    style.textContent = `
+        @keyframes bounce {
+            0% { transform: scale(0.3); opacity: 0; }
+            50% { transform: scale(1.05); }
+            70% { transform: scale(0.9); }
+            100% { transform: scale(1); opacity: 1; }
+        }
+        
+        @keyframes ripple {
+            0% { transform: scale(0); opacity: 1; }
+            100% { transform: scale(4); opacity: 0; }
+        }
+        
+        @keyframes progressBar {
+            0% { transform: translateX(-100%); }
+            100% { transform: translateX(0); }
+        }
+        
+        @keyframes fadeInUp {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+        
+        .cart-added-popup {
+            animation: fadeInUp 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) forwards;
+        }
+        
+        .popup-btn-secondary:hover {
+            background: #e9ecef !important;
+            border-color: #dee2e6 !important;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+        }
+        
+        .popup-btn-primary:hover {
+            background: linear-gradient(135deg, #0056b3, #004085) !important;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(0, 123, 255, 0.4) !important;
+        }
+        
+        .popup-btn-secondary:active,
+        .popup-btn-primary:active {
+            transform: translateY(0);
+        }
+        
+        .cart-popup-overlay {
+            animation: fadeIn 0.3s ease forwards;
+        }
+        
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        
+        /* Responsive design */
+        @media (max-width: 480px) {
+            .cart-added-popup {
+                max-width: 95% !important;
+                margin: 0 10px;
+            }
+            
+            .cart-added-popup h2 {
+                font-size: 1.3rem !important;
+            }
+            
+            .cart-added-popup h4 {
+                font-size: 1rem !important;
+            }
+        }
+    `;
+    
+    document.head.appendChild(style);
+}
 
-document.addEventListener('mouseout', function(e) {
-    if (e.target.onclick && e.target.onclick.toString().includes('closeCartPopup')) {
-        e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+// Gestionnaires d'événements pour les boutons du popup
+document.addEventListener('click', function(e) {
+    // Bouton secondaire (continuer)
+    if (e.target.classList.contains('popup-btn-secondary')) {
+        e.target.style.transform = 'translateY(1px)';
+        setTimeout(() => {
+            e.target.style.transform = '';
+        }, 150);
     }
-    if (e.target.onclick && e.target.onclick.toString().includes('goToCart')) {
-        e.target.style.background = 'white';
-        e.target.style.transform = 'translateY(0)';
+    
+    // Bouton primaire (voir panier)
+    if (e.target.classList.contains('popup-btn-primary')) {
+        e.target.style.transform = 'translateY(1px)';
+        setTimeout(() => {
+            e.target.style.transform = '';
+        }, 150);
     }
 });
 

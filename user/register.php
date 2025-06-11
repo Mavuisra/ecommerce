@@ -44,7 +44,17 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     VALUES (?, ?, ?, ?, ?, NOW())
                 ", [$username, $email, $hashed_password, $first_name, $last_name]);
                 
-                $success = 'Compte créé avec succès ! Vous pouvez maintenant vous connecter.';
+                // Connecter automatiquement l'utilisateur après inscription
+                $user_id = getLastInsertId();
+                $_SESSION['user_id'] = $user_id;
+                $_SESSION['user_email'] = $email;
+                $_SESSION['user_role'] = 'user';
+                $_SESSION['user_name'] = $first_name . ' ' . $last_name;
+                
+                // Redirection vers la page d'accueil
+                redirectWithMessage('/ecommerce/index.php', 
+                                   'Bienvenue ' . $first_name . ' ! Votre compte a été créé avec succès.', 
+                                   'success');
             }
         } catch (Exception $e) {
             $error = 'Erreur lors de la création du compte. Veuillez réessayer.';

@@ -142,9 +142,12 @@ $related_products = fetchAll("
 
                         <!-- Boutons d'action -->
                         <div class="action-buttons" style="display: flex; gap: 1rem; margin-bottom: 2rem;">
-                            <button class="btn btn-primary" 
+                            <button class="btn btn-primary add-to-cart" 
                                     style="flex: 2; padding: 1rem; font-size: 1.1rem;"
-                                    onclick="addToCartWithQuantity()">
+                                    data-product-id="<?php echo $product_id; ?>"
+                                    data-product-name="<?php echo htmlspecialchars($product['name']); ?>"
+                                    data-product-price="<?php echo $product['price']; ?>"
+                                    id="main-add-to-cart-btn">
                                 🛒 Ajouter au panier
                             </button>
                             <button class="btn btn-outline" 
@@ -264,11 +267,98 @@ function changeMainImage(src) {
     });
 }
 
-// Ajouter au panier avec quantité
-function addToCartWithQuantity() {
-    const quantity = document.getElementById('quantity').value;
-    addToCart(<?php echo $product_id; ?>, quantity);
-}
+// Gestionnaire d'événement pour le bouton d'ajout au panier
+document.addEventListener('DOMContentLoaded', function() {
+    const addToCartBtn = document.getElementById('main-add-to-cart-btn');
+    
+    if (addToCartBtn) {
+        addToCartBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            
+            console.log('🛒 Clic sur le bouton d\'ajout au panier');
+            
+            const quantity = document.getElementById('quantity').value;
+            const productId = this.dataset.productId;
+            
+            console.log('Product ID:', productId);
+            console.log('Quantité:', quantity);
+            
+            if (!productId) {
+                console.error('Product ID manquant');
+                alert('❌ Erreur: ID du produit manquant');
+                return;
+            }
+            
+            // Animation du bouton
+            const originalText = this.innerHTML;
+            this.innerHTML = '⏳ Ajout en cours...';
+            this.disabled = true;
+            
+            // Requête AJAX
+            fetch('/ecommerce/cart/add_to_cart.php', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                credentials: 'same-origin',
+                body: `product_id=${productId}&quantity=${quantity}`
+            })
+            .then(response => {
+                console.log('Statut de la réponse:', response.status);
+                if (!response.ok) {
+                    throw new Error('Erreur réseau: ' + response.status);
+                }
+                return response.json();
+            })
+            .then(data => {
+                console.log('✅ Réponse du serveur:', data);
+                
+                if (data.success) {
+                    // Mise à jour du compteur panier
+                    const cartCount = document.querySelector('.cart-count');
+                    if (cartCount && data.cart_count) {
+                        cartCount.textContent = data.cart_count;
+                        cartCount.style.display = data.cart_count > 0 ? 'flex' : 'none';
+                    }
+                    
+                    // Afficher le popup si disponible, sinon notification simple
+                    if (typeof showCartAddedPopup === 'function' && data.product) {
+                        showCartAddedPopup(data.product);
+                    } else {
+                        alert('✅ Produit ajouté au panier avec succès !\n\nQuantité: ' + quantity);
+                    }
+                    
+                    // Animation de succès
+                    this.innerHTML = '✓ Ajouté au panier !';
+                    this.style.background = '#28a745';
+                    this.style.color = 'white';
+                    
+                    setTimeout(() => {
+                        this.innerHTML = originalText;
+                        this.style.background = '';
+                        this.style.color = '';
+                        this.disabled = false;
+                    }, 3000);
+                    
+                } else {
+                    // Erreur
+                    console.error('❌ Erreur lors de l\'ajout:', data.message);
+                    alert('❌ Erreur: ' + (data.message || 'Impossible d\'ajouter le produit au panier'));
+                    this.innerHTML = originalText;
+                    this.disabled = false;
+                }
+            })
+            .catch(error => {
+                console.error('❌ Erreur fetch:', error);
+                alert('❌ Erreur de connexion. Veuillez vérifier votre connexion internet et réessayer.');
+                this.innerHTML = originalText;
+                this.disabled = false;
+            });
+        });
+    } else {
+        console.error('❌ Bouton d\'ajout au panier non trouvé dans le DOM');
+    }
+});
 
 // Ajouter aux favoris (fonction placeholder)
 function addToWishlist(productId) {

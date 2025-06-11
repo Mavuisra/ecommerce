@@ -29,8 +29,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
                 
-                // Redirection
-                $redirect = $_GET['redirect'] ?? '/index.php';
+                // Redirection vers la page d'accueil
+                $redirect = $_GET['redirect'] ?? '/ecommerce/index.php';
                 redirectWithMessage($redirect, 'Connexion réussie ! Bienvenue ' . $user['first_name'], 'success');
             } else {
                 $error = 'Email ou mot de passe incorrect.';
