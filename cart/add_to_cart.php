@@ -64,7 +64,14 @@ try {
     echo json_encode([
         'success' => true, 
         'message' => 'Produit ajouté au panier !',
-        'cart_count' => $cart_count
+        'cart_count' => $cart_count,
+        'product' => [
+            'id' => $product['id'],
+            'name' => $product['name'],
+            'price' => $product['price'],
+            'image' => $product['image'],
+            'quantity' => $quantity
+        ]
     ]);
     
 } catch (Exception $e) {

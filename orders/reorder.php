@@ -8,9 +8,7 @@ $user_id = $_SESSION['user_id'];
 $order_id = $_GET['id'] ?? null;
 
 if (!$order_id) {
-    $_SESSION['error'] = "Commande non spécifiée";
-    redirect('/ecommerce/orders/my_orders.php');
-    exit;
+    redirectWithMessage('/ecommerce/orders/my_orders.php', 'Commande non spécifiée', 'error');
 }
 
 // Vérifier que la commande appartient à l'utilisateur
@@ -20,9 +18,7 @@ $order = fetchOne("
 ", [$order_id, $user_id]);
 
 if (!$order) {
-    $_SESSION['error'] = "Commande non trouvée";
-    redirect('/ecommerce/orders/my_orders.php');
-    exit;
+    redirectWithMessage('/ecommerce/orders/my_orders.php', 'Commande non trouvée', 'error');
 }
 
 // Récupérer les articles de la commande

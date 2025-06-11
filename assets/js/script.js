@@ -460,7 +460,7 @@ function addToCart(button) {
         if (data.success) {
             // Succès - Mise à jour de l'affichage
             updateCartDisplay();
-            showNotification('Produit ajouté au panier !', 'success');
+            showCartAddedPopup(data.product);
             
             // Animation de succès
             button.innerHTML = '✓ Ajouté';
@@ -719,6 +719,161 @@ function initializeLazyLoading() {
     
     images.forEach(img => imageObserver.observe(img));
 }
+
+// Popup orange pour l'ajout au panier
+function showCartAddedPopup(product) {
+    // Créer le popup
+    const popup = document.createElement('div');
+    popup.className = 'cart-added-popup';
+    popup.style.cssText = `
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%) scale(0.7);
+        background: linear-gradient(135deg, #ff8c00, #ff7700);
+        color: white;
+        padding: 2rem;
+        border-radius: 15px;
+        box-shadow: 0 20px 60px rgba(255, 140, 0, 0.3);
+        z-index: 10001;
+        max-width: 400px;
+        width: 90%;
+        text-align: center;
+        opacity: 0;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        backdrop-filter: blur(10px);
+        border: 2px solid rgba(255, 255, 255, 0.2);
+    `;
+    
+    // Créer l'overlay
+    const overlay = document.createElement('div');
+    overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.5);
+        z-index: 10000;
+        opacity: 0;
+        transition: opacity 0.3s ease;
+    `;
+    
+    // Contenu du popup
+    popup.innerHTML = `
+        <div style="display: flex; align-items: center; justify-content: center; margin-bottom: 1rem;">
+            <div style="width: 60px; height: 60px; background: rgba(255, 255, 255, 0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 24px; margin-right: 1rem;">
+                🛒
+            </div>
+            <div style="text-align: left;">
+                <h3 style="margin: 0; font-size: 1.25rem; font-weight: 700;">Ajouté au panier !</h3>
+                <p style="margin: 0.25rem 0 0 0; opacity: 0.9; font-size: 0.9rem;">Article ajouté avec succès</p>
+            </div>
+        </div>
+        
+        <div style="background: rgba(255, 255, 255, 0.15); border-radius: 10px; padding: 1rem; margin-bottom: 1.5rem; text-align: left;">
+            <div style="display: flex; align-items: center; gap: 1rem;">
+                <img src="/ecommerce/assets/images/${product.image || 'default-product.jpg'}" 
+                     alt="${product.name}"
+                     style="width: 50px; height: 50px; object-fit: cover; border-radius: 8px; border: 2px solid rgba(255, 255, 255, 0.3);"
+                     onerror="this.src='/ecommerce/assets/images/default-product.jpg'">
+                <div style="flex: 1;">
+                    <h4 style="margin: 0; font-size: 1rem; font-weight: 600; margin-bottom: 0.25rem;">${product.name}</h4>
+                    <div style="display: flex; justify-content: space-between; align-items: center;">
+                        <span style="font-size: 0.9rem; opacity: 0.9;">Quantité: ${product.quantity}</span>
+                        <span style="font-weight: 700; font-size: 1rem;">${formatPriceFC(product.price)}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div style="display: flex; gap: 1rem;">
+            <button onclick="closeCartPopup()" 
+                    style="flex: 1; background: rgba(255, 255, 255, 0.2); color: white; border: 1px solid rgba(255, 255, 255, 0.3); padding: 0.75rem 1rem; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease;">
+                Continuer
+            </button>
+            <button onclick="goToCart()" 
+                    style="flex: 1; background: white; color: #ff8c00; border: none; padding: 0.75rem 1rem; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.2s ease;">
+                Voir le panier
+            </button>
+        </div>
+    `;
+    
+    // Ajouter au DOM
+    document.body.appendChild(overlay);
+    document.body.appendChild(popup);
+    
+    // Animation d'ouverture
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        popup.style.opacity = '1';
+        popup.style.transform = 'translate(-50%, -50%) scale(1)';
+    });
+    
+    // Fermer automatiquement après 5 secondes
+    setTimeout(() => {
+        closeCartPopup();
+    }, 5000);
+    
+    // Fermer en cliquant sur l'overlay
+    overlay.addEventListener('click', closeCartPopup);
+    
+    // Empêcher le scroll du body
+    document.body.style.overflow = 'hidden';
+}
+
+// Fermer le popup du panier
+function closeCartPopup() {
+    const popup = document.querySelector('.cart-added-popup');
+    const overlay = document.querySelector('div[style*="background: rgba(0, 0, 0, 0.5)"]');
+    
+    if (popup && overlay) {
+        popup.style.opacity = '0';
+        popup.style.transform = 'translate(-50%, -50%) scale(0.7)';
+        overlay.style.opacity = '0';
+        
+        setTimeout(() => {
+            document.body.removeChild(popup);
+            document.body.removeChild(overlay);
+            document.body.style.overflow = '';
+        }, 300);
+    }
+}
+
+// Aller au panier
+function goToCart() {
+    closeCartPopup();
+    window.location.href = '/ecommerce/cart/view_cart.php';
+}
+
+// Formater le prix en francs congolais
+function formatPriceFC(price) {
+    return new Intl.NumberFormat('fr-FR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    }).format(price) + ' FC';
+}
+
+// Style hover pour les boutons du popup
+document.addEventListener('mouseover', function(e) {
+    if (e.target.onclick && e.target.onclick.toString().includes('closeCartPopup')) {
+        e.target.style.background = 'rgba(255, 255, 255, 0.3)';
+    }
+    if (e.target.onclick && e.target.onclick.toString().includes('goToCart')) {
+        e.target.style.background = '#f0f0f0';
+        e.target.style.transform = 'translateY(-1px)';
+    }
+});
+
+document.addEventListener('mouseout', function(e) {
+    if (e.target.onclick && e.target.onclick.toString().includes('closeCartPopup')) {
+        e.target.style.background = 'rgba(255, 255, 255, 0.2)';
+    }
+    if (e.target.onclick && e.target.onclick.toString().includes('goToCart')) {
+        e.target.style.background = 'white';
+        e.target.style.transform = 'translateY(0)';
+    }
+});
 
 // Initialiser le lazy loading
 document.addEventListener('DOMContentLoaded', initializeLazyLoading); 
