@@ -27,7 +27,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $_SESSION['user_role'] = $user['role'];
                 $_SESSION['user_name'] = $user['first_name'] . ' ' . $user['last_name'];
                 
-                redirectWithMessage('/admin/dashboard.php', 'Connexion administrative réussie !', 'success');
+                redirectWithMessage('/ecommerce/admin/dashboard.php', 'Connexion administrative réussie !', 'success');
             } else {
                 $error = 'Identifiants administrateur incorrects.';
             }
