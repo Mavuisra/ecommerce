@@ -111,7 +111,7 @@ $stats = [
     'total_orders' => fetchOne("SELECT COUNT(*) as count FROM orders")['count'],
     'pending_orders' => fetchOne("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'")['count'],
     'processing_orders' => fetchOne("SELECT COUNT(*) as count FROM orders WHERE status = 'processing'")['count'],
-    'total_revenue' => fetchOne("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE payment_status = 'paid'")['total'],
+    'total_revenue' => fetchOne("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE status = 'delivered'")['total'],
 ];
 ?>
 

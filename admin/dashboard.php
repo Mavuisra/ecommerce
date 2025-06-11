@@ -10,7 +10,7 @@ $stats = [
     'total_products' => fetchOne("SELECT COUNT(*) as count FROM products")['count'],
     'total_users' => fetchOne("SELECT COUNT(*) as count FROM users WHERE role = 'user'")['count'],
     'total_orders' => fetchOne("SELECT COUNT(*) as count FROM orders")['count'],
-    'total_revenue' => fetchOne("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE payment_status = 'paid'")['total'],
+    'total_revenue' => fetchOne("SELECT COALESCE(SUM(total_amount), 0) as total FROM orders WHERE status = 'delivered'")['total'],
     'pending_orders' => fetchOne("SELECT COUNT(*) as count FROM orders WHERE status = 'pending'")['count'],
     'low_stock' => fetchOne("SELECT COUNT(*) as count FROM products WHERE stock_quantity <= 5 AND status = 'active'")['count']
 ];
