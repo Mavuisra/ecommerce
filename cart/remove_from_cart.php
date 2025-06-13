@@ -17,7 +17,12 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 $product_id = intval($_POST['product_id'] ?? 0);
 $user_id = $_SESSION['user_id'];
 
+// Logs de debug
+error_log("DEBUG remove_from_cart.php - product_id: $product_id, user_id: $user_id");
+error_log("DEBUG remove_from_cart.php - POST data: " . print_r($_POST, true));
+
 if ($product_id <= 0) {
+    error_log("DEBUG remove_from_cart.php - Données invalides: product_id=$product_id");
     echo json_encode(['success' => false, 'message' => 'Données invalides']);
     exit();
 }

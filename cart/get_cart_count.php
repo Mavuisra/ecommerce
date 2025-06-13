@@ -11,9 +11,9 @@ if (!isLoggedIn()) {
 }
 
 try {
-    // Récupérer le nombre total d'articles dans le panier
+    // Récupérer le nombre distinct de produits dans le panier (pas la somme des quantités)
     $result = fetchOne("
-        SELECT COALESCE(SUM(quantity), 0) as count 
+        SELECT COUNT(*) as count 
         FROM cart 
         WHERE user_id = ?
     ", [$_SESSION['user_id']]);

@@ -93,6 +93,19 @@ function getCartItemCount() {
     }
     
     global $pdo;
+    $stmt = $pdo->prepare("SELECT COUNT(*) as total FROM cart WHERE user_id = ?");
+    $stmt->execute([$_SESSION['user_id']]);
+    $result = $stmt->fetch();
+    return $result['total'] ?? 0;
+}
+
+// Obtenir la quantité totale d'articles dans le panier
+function getCartTotalQuantity() {
+    if (!isLoggedIn()) {
+        return 0;
+    }
+    
+    global $pdo;
     $stmt = $pdo->prepare("SELECT SUM(quantity) as total FROM cart WHERE user_id = ?");
     $stmt->execute([$_SESSION['user_id']]);
     $result = $stmt->fetch();

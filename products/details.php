@@ -301,7 +301,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     'Content-Type': 'application/x-www-form-urlencoded',
                 },
                 credentials: 'same-origin',
-                body: `product_id=${productId}&quantity=${quantity}`
+                body: `product_id=${productId}&quantity=${parseInt(quantity)}`
             })
             .then(response => {
                 console.log('Statut de la réponse:', response.status);
